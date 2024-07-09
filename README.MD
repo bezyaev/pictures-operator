@@ -11,11 +11,13 @@ import { PictureFormat, PictureOperator } from 'pictures-operator';
 
 const pictureOperator = new PictureOperator();
 
-await pictureOperator.process(file, {
+const result = await pictureOperator.process(file, {
   format: PictureFormat.webp, // webp, jpeg, png,
   quality: 90, // quality 0-100
   resize: [720, 480] // width, height
 });
+
+// result is a Blob
 ```
 
 Input formats are: **jpeg, png, bmp, heif, heic**, and **avif**, **webp** (if browser supports it).\
