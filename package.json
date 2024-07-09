@@ -1,0 +1,55 @@
+{
+  "name": "pictures-operator",
+  "version": "1.0.5",
+  "description": "Module to encode, decode, and compress images in various formats directly in the browser using Web workers",
+  "type": "module",
+  "module": "dist/index.esm.js",
+  "main": "dist/index.umd.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.umd.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "build": "npm run clean && rollup -c",
+    "lint": "eslint 'src/**/*.ts'",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "encode",
+    "decode",
+    "picture"
+  ],
+  "author": "Mark Beziaev",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@rollup/plugin-url": "^8.0.2",
+    "@types/node": "^20.14.10",
+    "@typescript-eslint/eslint-plugin": "^7.15.0",
+    "@typescript-eslint/parser": "^7.15.0",
+    "eslint": "^8.57.0",
+    "rimraf": "^5.0.8",
+    "rollup": "^4.18.1",
+    "rollup-plugin-polyfill-node": "^0.13.0",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.6.3",
+    "typescript": "^5.5.3",
+    "@web/rollup-plugin-import-meta-assets": "^2.2.1"
+  },
+  "dependencies": {
+    "libheif-js": "^1.17.1",
+    "tslib": "^2.6.3"
+  }
+}
