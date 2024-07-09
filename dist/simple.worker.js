@@ -47,14 +47,17 @@ var SimpleWorker = (function () {
             }
             const blob = new Blob([file], { type: file.type });
             const bitmap = yield createImageBitmap(blob);
-            canvas.width = bitmap.width;
-            canvas.height = bitmap.height;
-            ctx.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height);
+            const { width, height } = bitmap;
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(bitmap, 0, 0, width, height);
             const resultBlob = yield canvas.convertToBlob();
             self.postMessage({
                 success: true,
                 blob: resultBlob,
-                format: 'png'
+                format: 'png',
+                width,
+                height
             });
         });
     }

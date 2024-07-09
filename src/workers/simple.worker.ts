@@ -23,17 +23,21 @@ async function decode(event: {
   const blob = new Blob([file], { type: file.type });
   const bitmap = await createImageBitmap(blob);
 
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
+  const { width, height } = bitmap;
 
-  ctx.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height);
+  canvas.width = width;
+  canvas.height = height;
+
+  ctx.drawImage(bitmap, 0, 0, width, height);
 
   const resultBlob = await canvas.convertToBlob();
 
   self.postMessage({
     success: true,
     blob: resultBlob,
-    format: 'png'
+    format: 'png',
+    width,
+    height
   });
 }
 

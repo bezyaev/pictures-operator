@@ -131,6 +131,15 @@
                 exports.PictureFormat.png,
                 exports.PictureFormat.webp
             ];
+            this.supportedDecodeFormats = [
+                exports.PictureFormat.jpeg,
+                exports.PictureFormat.png,
+                exports.PictureFormat.webp,
+                exports.PictureFormat.heic,
+                exports.PictureFormat.heif,
+                exports.PictureFormat.bmp,
+                exports.PictureFormat.avif
+            ];
         }
         determineMimeType(file) {
             return file.type;
@@ -181,6 +190,7 @@
         }
         process(file, config) {
             return tslib.__awaiter(this, void 0, void 0, function* () {
+                var _a, _b, _c, _d, _e;
                 if (!window.Worker) {
                     throw new Error('Web Workers are not supported in this environment');
                 }
@@ -192,14 +202,19 @@
                 }
                 const mimeType = this.determineMimeType(file);
                 const sourceFormat = this.mimeTypeToFormat(mimeType);
-                const [targetWidth, targetHeight] = config.resize;
-                const targetFormat = config.format;
+                if (!file.type.startsWith('image') ||
+                    !this.supportedDecodeFormats.includes(sourceFormat)) {
+                    throw new Error('Decoding of this format is not supported yet');
+                }
                 const decoder = DecodersFactory.createDecoder(sourceFormat);
                 const decodedPicture = yield decoder.decode(file);
+                const targetWidth = (_b = (_a = config.resize) === null || _a === void 0 ? void 0 : _a[0]) !== null && _b !== void 0 ? _b : decodedPicture.width;
+                const targetHeight = (_d = (_c = config.resize) === null || _c === void 0 ? void 0 : _c[1]) !== null && _d !== void 0 ? _d : decodedPicture.height;
+                const targetFormat = config.format;
                 const pictureCompressor = new PictureCompressor();
                 const compressedPicture = yield pictureCompressor.compress({
                     blob: decodedPicture.blob,
-                    quality: config.quality,
+                    quality: (_e = config.quality) !== null && _e !== void 0 ? _e : 100,
                     targetWidth,
                     targetHeight
                 });

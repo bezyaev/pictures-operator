@@ -1,14 +1,15 @@
 import { PictureFormat } from './types';
 export type PictureOperatorConfig = {
     format: PictureFormat;
-    quality: number;
-    resize: [number, number];
+    quality?: number;
+    resize?: [number, number];
 };
 export declare class PictureOperator {
     private determineMimeType;
     private mimeTypeToFormat;
     private formatToMimeType;
     private supportedEncodeFormats;
+    private supportedDecodeFormats;
     process(file: File, config: PictureOperatorConfig): Promise<Blob>;
     private downloadFile;
 }

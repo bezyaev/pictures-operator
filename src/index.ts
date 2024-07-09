@@ -5,8 +5,8 @@ import { PictureFormat } from './types';
 
 export type PictureOperatorConfig = {
   format: PictureFormat;
-  quality: number;
-  resize: [number, number];
+  quality?: number;
+  resize?: [number, number];
 };
 
 export class PictureOperator {
@@ -66,6 +66,16 @@ export class PictureOperator {
     PictureFormat.webp
   ];
 
+  private supportedDecodeFormats = [
+    PictureFormat.jpeg,
+    PictureFormat.png,
+    PictureFormat.webp,
+    PictureFormat.heic,
+    PictureFormat.heif,
+    PictureFormat.bmp,
+    PictureFormat.avif
+  ];
+
   async process(file: File, config: PictureOperatorConfig): Promise<Blob> {
     if (!window.Worker) {
       throw new Error('Web Workers are not supported in this environment');
@@ -82,16 +92,24 @@ export class PictureOperator {
     const mimeType = this.determineMimeType(file);
     const sourceFormat = this.mimeTypeToFormat(mimeType);
 
-    const [targetWidth, targetHeight] = config.resize;
-    const targetFormat = config.format;
+    if (
+      !file.type.startsWith('image') ||
+      !this.supportedDecodeFormats.includes(sourceFormat)
+    ) {
+      throw new Error('Decoding of this format is not supported yet');
+    }
 
     const decoder = DecodersFactory.createDecoder(sourceFormat);
     const decodedPicture = await decoder.decode(file);
 
+    const targetWidth = config.resize?.[0] ?? decodedPicture.width;
+    const targetHeight = config.resize?.[1] ?? decodedPicture.height;
+    const targetFormat = config.format;
+
     const pictureCompressor = new PictureCompressor();
     const compressedPicture = await pictureCompressor.compress({
       blob: decodedPicture.blob,
-      quality: config.quality,
+      quality: config.quality ?? 100,
       targetWidth,
       targetHeight
     });
