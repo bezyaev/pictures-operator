@@ -1,4 +1,4 @@
-import { SimpleEncoder } from './SimpleEncoder';
+import { SimpleEncoder } from './simple-encoder';
 
 export type EncodedPicture = {
   blob: Blob;
