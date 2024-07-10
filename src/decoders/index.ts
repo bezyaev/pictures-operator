@@ -1,4 +1,5 @@
 import { PictureFormat } from '../types';
+import { AvifDecoder } from './avif-decoder';
 import { HeifDecoder } from './heif-decoder';
 import { SimpleDecoder } from './simple-decoder';
 
@@ -19,6 +20,8 @@ export class DecodersFactory {
       case PictureFormat.heic:
       case PictureFormat.heif:
         return new HeifDecoder();
+      case PictureFormat.avif:
+        return new AvifDecoder();
       default:
         return new SimpleDecoder();
     }
