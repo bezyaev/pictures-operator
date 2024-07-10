@@ -1,6 +1,6 @@
 {
   "name": "pictures-operator",
-  "version": "1.0.8",
+  "version": "1.0.7",
   "description": "Module to encode, decode, and compress images in various formats directly in the browser using Web workers",
   "type": "module",
   "module": "dist/index.esm.js",
@@ -39,7 +39,6 @@
     "@typescript-eslint/eslint-plugin": "^7.15.0",
     "@typescript-eslint/parser": "^7.15.0",
     "eslint": "^8.57.0",
-    "fs-extra": "^11.2.0",
     "rimraf": "^5.0.8",
     "rollup": "^4.18.1",
     "rollup-plugin-polyfill-node": "^0.13.0",
@@ -50,8 +49,6 @@
     "@web/rollup-plugin-import-meta-assets": "^2.2.1"
   },
   "dependencies": {
-    "@jsquash/avif": "^1.3.0",
-    "@jsquash/webp": "^1.4.0",
     "libheif-js": "^1.17.1",
     "tslib": "^2.6.3"
   }

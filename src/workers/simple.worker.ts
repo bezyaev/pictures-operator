@@ -78,81 +78,13 @@ async function encode(event: {
   });
 }
 
-async function getImageData(event: {
-  data: {
-    blob: Blob;
-  };
-}) {
-  const {
-    data: { blob }
-  } = event;
-
-  const canvas = new OffscreenCanvas(1, 1);
-
-  const ctx = canvas.getContext('2d');
-
-  if (!ctx) {
-    throw new Error('Could not get 2d context');
-  }
-
-  const bitmap = await createImageBitmap(blob);
-
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
-
-  ctx.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height);
-
-  const imageData = ctx.getImageData(0, 0, bitmap.width, bitmap.height);
-
-  self.postMessage({
-    success: true,
-    imageData: imageData,
-    width: bitmap.width,
-    height: bitmap.height
-  });
-}
-
-async function getBlob(event: {
-  data: {
-    imageData: ImageData;
-  };
-}) {
-  const {
-    data: { imageData }
-  } = event;
-
-  const canvas = new OffscreenCanvas(1, 1);
-
-  const ctx = canvas.getContext('2d');
-
-  if (!ctx) {
-    throw new Error('Could not get 2d context');
-  }
-
-  canvas.width = imageData.width;
-  canvas.height = imageData.height;
-
-  ctx.putImageData(imageData, 0, 0);
-  const blob = await canvas.convertToBlob();
-
-  self.postMessage({
-    success: true,
-    blob
-  });
-}
-
 function main() {
   self.onmessage = async (event: {
     data: {
-      command:
-        | 'decode'
-        | 'encode'
-        | 'blob-to-image-data'
-        | 'image-data-to-blob';
+      command: 'decode' | 'encode';
       blob: Blob;
       targetMimeType: string;
       file: File;
-      imageData: ImageData;
     };
   }) => {
     const {
@@ -160,18 +92,7 @@ function main() {
     } = event;
 
     try {
-      switch (command) {
-        case 'blob-to-image-data':
-          return getImageData(event);
-        case 'image-data-to-blob':
-          return getBlob(event);
-        case 'decode':
-          return decode(event);
-        case 'encode':
-          return encode(event);
-        default:
-          throw new Error('Unknown command');
-      }
+      return command === 'decode' ? decode(event) : encode(event);
     } catch (e) {
       self.postMessage({
         success: false,

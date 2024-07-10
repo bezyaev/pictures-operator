@@ -63,8 +63,7 @@ export class PictureOperator {
   private supportedEncodeFormats = [
     PictureFormat.jpeg,
     PictureFormat.png,
-    PictureFormat.webp,
-    PictureFormat.avif
+    PictureFormat.webp
   ];
 
   private supportedDecodeFormats = [

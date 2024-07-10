@@ -1,6 +1,4 @@
-import { AvifEncoder } from './avif-encoder';
-import { SimpleEncoder } from './simple-encoder';
-import { WebpEncoder } from './webp-encoder';
+import { SimpleEncoder } from './SimpleEncoder';
 
 export type EncodedPicture = {
   blob: Blob;
@@ -13,10 +11,6 @@ export interface PictureEncoder {
 export class EncodersFactory {
   static createEncoder(targetFormat: string): PictureEncoder {
     switch (targetFormat) {
-      case 'webp':
-        return new WebpEncoder();
-      case 'avif':
-        return new AvifEncoder();
       default:
         return new SimpleEncoder();
     }

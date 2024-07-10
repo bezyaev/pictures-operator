@@ -12,7 +12,7 @@ import { PictureFormat, PictureOperator } from 'pictures-operator';
 const pictureOperator = new PictureOperator();
 
 const result = await pictureOperator.process(file, {
-  format: PictureFormat.webp, // webp, jpeg, png, avif
+  format: PictureFormat.webp, // webp, jpeg, png,
   quality: 90, // quality 0-100
   resize: [720, 480] // width, height
 });
@@ -20,8 +20,8 @@ const result = await pictureOperator.process(file, {
 // result is a Blob
 ```
 
-Input formats are: **jpeg, png, bmp, heif, heic**, and **avif**, **webp** (via wasm module).\
-Output formats are: **jpeg, png**, and **webp**, **avif** (ia wasm module).
+Input formats are: **jpeg, png, bmp, heif, heic**, and **avif**, **webp** (if browser supports it).\
+Output formats are: **jpeg, png**, and **webp** (if browser supports it).
 
 ### Known issues
 
@@ -37,4 +37,4 @@ Output formats are: **jpeg, png**, and **webp**, **avif** (ia wasm module).
 
 ### Roadmap
 
-1. Check if the browser has native support for AVIF and WebP formats, then use the native encoder/decoder
+1. The next versions will include **avif** fallback if the browser does not support it.
