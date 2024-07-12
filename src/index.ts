@@ -63,7 +63,8 @@ export class PictureOperator {
   private supportedEncodeFormats = [
     PictureFormat.jpeg,
     PictureFormat.png,
-    PictureFormat.webp
+    PictureFormat.webp,
+    PictureFormat.avif
   ];
 
   private supportedDecodeFormats = [
@@ -99,7 +100,7 @@ export class PictureOperator {
       throw new Error('Decoding of this format is not supported yet');
     }
 
-    const decoder = DecodersFactory.createDecoder(sourceFormat);
+    const decoder = await DecodersFactory.createDecoder(sourceFormat);
     const decodedPicture = await decoder.decode(file);
 
     const targetWidth = config.resize?.[0] ?? decodedPicture.width;

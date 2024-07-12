@@ -11,6 +11,10 @@ export class SimpleEncoder implements PictureEncoder {
       );
 
       worker.onmessage = (event) => {
+        if (!event.data.success) {
+          reject(new Error(event.data.error));
+        }
+
         resolve(event.data);
       };
 

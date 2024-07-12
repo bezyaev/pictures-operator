@@ -12,7 +12,7 @@ import { PictureFormat, PictureOperator } from 'pictures-operator';
 const pictureOperator = new PictureOperator();
 
 const result = await pictureOperator.process(file, {
-  format: PictureFormat.webp, // webp, jpeg, png,
+  format: PictureFormat.webp, // webp, jpeg, png, avif,
   quality: 90, // quality 0-100
   resize: [720, 480] // width, height
 });
@@ -20,8 +20,8 @@ const result = await pictureOperator.process(file, {
 // result is a Blob
 ```
 
-Input formats are: **jpeg, png, bmp, heif, heic**, and **avif**, **webp** (if browser supports it).\
-Output formats are: **jpeg, png**, and **webp** (if browser supports it).
+Input formats are: **jpeg, png, bmp, heif, heic, avif, webp**.\
+Output formats are: **jpeg, png, avif, webp**.
 
 ### Known issues
 
@@ -34,7 +34,3 @@ Output formats are: **jpeg, png**, and **webp** (if browser supports it).
     exclude: ["pictures-operator"]
   },
 ```
-
-### Roadmap
-
-1. The next versions will include **avif** fallback if the browser does not support it.

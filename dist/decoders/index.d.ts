@@ -9,5 +9,6 @@ export interface PictureDecoder {
     decode(file: File): Promise<DecodedPicture>;
 }
 export declare class DecodersFactory {
-    static createDecoder(sourceFormat: PictureFormat): PictureDecoder;
+    static isFormatSupported(format: PictureFormat): Promise<boolean>;
+    static createDecoder(sourceFormat: PictureFormat): Promise<PictureDecoder>;
 }
