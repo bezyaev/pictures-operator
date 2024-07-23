@@ -47,12 +47,19 @@ var CompressorWorker = (function () {
                     throw new Error('Could not get 2d context');
                 }
                 const bitmap = yield createImageBitmap(blob);
-                const scaleFactor = Math.max(targetWidth / bitmap.width, targetHeight / bitmap.height);
-                const newWidth = bitmap.width * scaleFactor;
-                const newHeight = bitmap.height * scaleFactor;
-                canvas.width = newWidth;
-                canvas.height = newHeight;
-                ctx.drawImage(bitmap, 0, 0, newWidth, newHeight);
+                const scaleFactor = Math.max(Math.min(targetWidth, 4096) / bitmap.width, Math.min(targetHeight, 4096) / bitmap.height);
+                const downscaleFactor = Math.min(Math.min(targetWidth, 4096) / bitmap.width, Math.min(targetHeight, 4096) / bitmap.height);
+                const preCalculatedWidth = bitmap.width * scaleFactor;
+                const preCalculatedHeight = bitmap.height * scaleFactor;
+                const computedWidth = preCalculatedWidth > 4096 || preCalculatedHeight > 4096
+                    ? bitmap.width * downscaleFactor
+                    : preCalculatedWidth;
+                const computedHeight = preCalculatedWidth > 4096 || preCalculatedHeight > 4096
+                    ? bitmap.height * downscaleFactor
+                    : preCalculatedHeight;
+                canvas.width = computedWidth;
+                canvas.height = computedHeight;
+                ctx.drawImage(bitmap, 0, 0, computedWidth, computedHeight);
                 const resultBlob = yield canvas.convertToBlob({
                     type: 'image/jpeg',
                     quality: quality / 100

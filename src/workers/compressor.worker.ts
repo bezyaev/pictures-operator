@@ -28,17 +28,31 @@ function main() {
       const bitmap = await createImageBitmap(blob);
 
       const scaleFactor = Math.max(
-        targetWidth / bitmap.width,
-        targetHeight / bitmap.height
+        Math.min(targetWidth, 4096) / bitmap.width,
+        Math.min(targetHeight, 4096) / bitmap.height
       );
 
-      const newWidth = bitmap.width * scaleFactor;
-      const newHeight = bitmap.height * scaleFactor;
+      const downscaleFactor = Math.min(
+        Math.min(targetWidth, 4096) / bitmap.width,
+        Math.min(targetHeight, 4096) / bitmap.height
+      );
 
-      canvas.width = newWidth;
-      canvas.height = newHeight;
+      const preCalculatedWidth = bitmap.width * scaleFactor;
+      const preCalculatedHeight = bitmap.height * scaleFactor;
 
-      ctx.drawImage(bitmap, 0, 0, newWidth, newHeight);
+      const computedWidth =
+        preCalculatedWidth > 4096 || preCalculatedHeight > 4096
+          ? bitmap.width * downscaleFactor
+          : preCalculatedWidth;
+      const computedHeight =
+        preCalculatedWidth > 4096 || preCalculatedHeight > 4096
+          ? bitmap.height * downscaleFactor
+          : preCalculatedHeight;
+
+      canvas.width = computedWidth;
+      canvas.height = computedHeight;
+
+      ctx.drawImage(bitmap, 0, 0, computedWidth, computedHeight);
 
       const resultBlob = await canvas.convertToBlob({
         type: 'image/jpeg',

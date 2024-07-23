@@ -74,6 +74,7 @@ export class PictureOperator {
     PictureFormat.heic,
     PictureFormat.heif,
     PictureFormat.bmp,
+    PictureFormat.gif,
     PictureFormat.avif
   ];
 
@@ -103,8 +104,13 @@ export class PictureOperator {
     const decoder = await DecodersFactory.createDecoder(sourceFormat);
     const decodedPicture = await decoder.decode(file);
 
-    const targetWidth = config.resize?.[0] ?? decodedPicture.width;
-    const targetHeight = config.resize?.[1] ?? decodedPicture.height;
+    const targetWidth = config.resize?.[0]
+      ? Math.min(config.resize?.[0], 4096)
+      : decodedPicture.width;
+    const targetHeight = config.resize?.[1]
+      ? Math.min(config.resize?.[1], 4096)
+      : decodedPicture.height;
+
     const targetFormat = config.format;
 
     const pictureCompressor = new PictureCompressor();

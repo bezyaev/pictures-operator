@@ -48,9 +48,13 @@ var SimpleWorker = (function () {
             const blob = new Blob([file], { type: file.type });
             const bitmap = yield createImageBitmap(blob);
             const { width, height } = bitmap;
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(bitmap, 0, 0, width, height);
+            // Fallback for iOS, canvas size is limited to 4096x4096
+            const downscaleFactor = width > 4096 || height > 4096 ? Math.min(4096 / width, 4096 / height) : 1;
+            const scaledWidth = width * downscaleFactor;
+            const scaledHeight = height * downscaleFactor;
+            canvas.width = scaledWidth;
+            canvas.height = scaledHeight;
+            ctx.drawImage(bitmap, 0, 0, scaledWidth, scaledHeight);
             const resultBlob = yield canvas.convertToBlob();
             self.postMessage({
                 success: true,
@@ -93,15 +97,20 @@ var SimpleWorker = (function () {
                 throw new Error('Could not get 2d context');
             }
             const bitmap = yield createImageBitmap(blob);
-            canvas.width = bitmap.width;
-            canvas.height = bitmap.height;
-            ctx.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height);
-            const imageData = ctx.getImageData(0, 0, bitmap.width, bitmap.height);
+            const { width, height } = bitmap;
+            // Fallback for iOS, canvas size is limited to 4096x4096
+            const downscaleFactor = width > 4096 || height > 4096 ? Math.min(4096 / width, 4096 / height) : 1;
+            const scaledWidth = width * downscaleFactor;
+            const scaledHeight = height * downscaleFactor;
+            canvas.width = scaledWidth;
+            canvas.height = scaledHeight;
+            ctx.drawImage(bitmap, 0, 0, scaledWidth, scaledHeight);
+            const imageData = ctx.getImageData(0, 0, scaledWidth, scaledHeight);
             self.postMessage({
                 success: true,
                 imageData: imageData,
-                width: bitmap.width,
-                height: bitmap.height
+                width: scaledWidth,
+                height: scaledHeight
             });
         });
     }

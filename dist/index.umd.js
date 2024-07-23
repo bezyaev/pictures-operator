@@ -601,6 +601,7 @@
                 exports.PictureFormat.heic,
                 exports.PictureFormat.heif,
                 exports.PictureFormat.bmp,
+                exports.PictureFormat.gif,
                 exports.PictureFormat.avif
             ];
         }
@@ -671,8 +672,12 @@
                 }
                 const decoder = yield DecodersFactory.createDecoder(sourceFormat);
                 const decodedPicture = yield decoder.decode(file);
-                const targetWidth = (_b = (_a = config.resize) === null || _a === void 0 ? void 0 : _a[0]) !== null && _b !== void 0 ? _b : decodedPicture.width;
-                const targetHeight = (_d = (_c = config.resize) === null || _c === void 0 ? void 0 : _c[1]) !== null && _d !== void 0 ? _d : decodedPicture.height;
+                const targetWidth = ((_a = config.resize) === null || _a === void 0 ? void 0 : _a[0])
+                    ? Math.min((_b = config.resize) === null || _b === void 0 ? void 0 : _b[0], 4096)
+                    : decodedPicture.width;
+                const targetHeight = ((_c = config.resize) === null || _c === void 0 ? void 0 : _c[1])
+                    ? Math.min((_d = config.resize) === null || _d === void 0 ? void 0 : _d[1], 4096)
+                    : decodedPicture.height;
                 const targetFormat = config.format;
                 const pictureCompressor = new PictureCompressor();
                 const compressedPicture = yield pictureCompressor.compress({
