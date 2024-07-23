@@ -1,4 +1,6 @@
 export class PictureCompressor {
+  private worker: Worker | null = null;
+
   compress = async ({
     blob,
     quality,
@@ -14,14 +16,14 @@ export class PictureCompressor {
     format: string;
   }> => {
     return new Promise((resolve, reject) => {
-      const worker = new Worker(
+      this.worker = new Worker(
         new URL('./compressor.worker.js?worker', import.meta.url),
         {
           type: 'module'
         }
       );
 
-      worker.onmessage = (event) => {
+      this.worker.onmessage = (event) => {
         if (!event.data.success) {
           console.error(event.data);
           reject(new Error(event.data.error));
@@ -30,11 +32,15 @@ export class PictureCompressor {
         resolve(event.data);
       };
 
-      worker.onerror = (error) => {
+      this.worker.onerror = (error) => {
         reject(error);
       };
 
-      worker.postMessage({ blob, quality, targetWidth, targetHeight });
+      this.worker.postMessage({ blob, quality, targetWidth, targetHeight });
     });
+  };
+
+  getWorker = () => {
+    return this.worker as Worker;
   };
 }

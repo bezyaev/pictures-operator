@@ -7,6 +7,7 @@ export type DecodedPicture = {
 };
 export interface PictureDecoder {
     decode(file: File): Promise<DecodedPicture>;
+    getWorker(): Worker;
 }
 export declare class DecodersFactory {
     static isFormatSupported(format: PictureFormat): Promise<boolean>;

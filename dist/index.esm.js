@@ -2,24 +2,28 @@ import { __awaiter } from 'tslib';
 
 class PictureCompressor {
     constructor() {
+        this.worker = null;
         this.compress = (_a) => __awaiter(this, [_a], void 0, function* ({ blob, quality, targetWidth, targetHeight }) {
             return new Promise((resolve, reject) => {
-                const worker = new Worker(new URL('./compressor.worker.js?worker', import.meta.url), {
+                this.worker = new Worker(new URL('./compressor.worker.js?worker', import.meta.url), {
                     type: 'module'
                 });
-                worker.onmessage = (event) => {
+                this.worker.onmessage = (event) => {
                     if (!event.data.success) {
                         console.error(event.data);
                         reject(new Error(event.data.error));
                     }
                     resolve(event.data);
                 };
-                worker.onerror = (error) => {
+                this.worker.onerror = (error) => {
                     reject(error);
                 };
-                worker.postMessage({ blob, quality, targetWidth, targetHeight });
+                this.worker.postMessage({ blob, quality, targetWidth, targetHeight });
             });
         });
+        this.getWorker = () => {
+            return this.worker;
+        };
     }
 }
 
@@ -183,22 +187,25 @@ async function decode$1(buffer) {
 }
 
 class AvifDecoder {
+    constructor() {
+        this.worker = null;
+    }
     getBlob(imageData) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                const worker = new Worker(new URL('./simple.worker.js?worker', import.meta.url), {
+                this.worker = new Worker(new URL('./simple.worker.js?worker', import.meta.url), {
                     type: 'module'
                 });
-                worker.onmessage = (event) => {
+                this.worker.onmessage = (event) => {
                     if (!event.data.success) {
                         reject(new Error(event.data.error));
                     }
                     resolve(event.data.blob);
                 };
-                worker.onerror = (error) => {
+                this.worker.onerror = (error) => {
                     reject(error);
                 };
-                worker.postMessage({
+                this.worker.postMessage({
                     imageData,
                     command: 'image-data-to-blob'
                 });
@@ -218,49 +225,64 @@ class AvifDecoder {
             };
         });
     }
+    getWorker() {
+        return this.worker;
+    }
 }
 
 class HeifDecoder {
+    constructor() {
+        this.worker = null;
+    }
     decode(file) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                const worker = new Worker(new URL('./heif.worker.js?worker', import.meta.url), {
+                this.worker = new Worker(new URL('./heif.worker.js?worker', import.meta.url), {
                     type: 'module'
                 });
-                worker.onmessage = (event) => {
+                this.worker.onmessage = (event) => {
                     if (!event.data.success) {
                         reject(new Error(event.data.error));
                     }
                     resolve(event.data);
                 };
-                worker.onerror = (error) => {
+                this.worker.onerror = (error) => {
                     reject(error);
                 };
-                worker.postMessage({ file, command: 'decode' });
+                this.worker.postMessage({ file, command: 'decode' });
             });
         });
+    }
+    getWorker() {
+        return this.worker;
     }
 }
 
 class SimpleDecoder {
+    constructor() {
+        this.worker = null;
+    }
     decode(file) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                const worker = new Worker(new URL('./simple.worker.js?worker', import.meta.url), {
+                this.worker = new Worker(new URL('./simple.worker.js?worker', import.meta.url), {
                     type: 'module'
                 });
-                worker.onmessage = (event) => {
+                this.worker.onmessage = (event) => {
                     if (!event.data.success) {
                         reject(new Error(event.data.error));
                     }
                     resolve(event.data);
                 };
-                worker.onerror = (error) => {
+                this.worker.onerror = (error) => {
                     reject(error);
                 };
-                worker.postMessage({ file, command: 'decode' });
+                this.worker.postMessage({ file, command: 'decode' });
             });
         });
+    }
+    getWorker() {
+        return this.worker;
     }
 }
 
@@ -396,22 +418,25 @@ async function decode(buffer) {
 }
 
 class WebpDecoder {
+    constructor() {
+        this.worker = null;
+    }
     getBlob(imageData) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                const worker = new Worker(new URL('./simple.worker.js?worker', import.meta.url), {
+                this.worker = new Worker(new URL('./simple.worker.js?worker', import.meta.url), {
                     type: 'module'
                 });
-                worker.onmessage = (event) => {
+                this.worker.onmessage = (event) => {
                     if (!event.data.success) {
                         reject(new Error(event.data.error));
                     }
                     resolve(event.data.blob);
                 };
-                worker.onerror = (error) => {
+                this.worker.onerror = (error) => {
                     reject(error);
                 };
-                worker.postMessage({
+                this.worker.postMessage({
                     imageData,
                     command: 'image-data-to-blob'
                 });
@@ -430,6 +455,9 @@ class WebpDecoder {
                 format: PictureFormat.png
             };
         });
+    }
+    getWorker() {
+        return this.worker;
     }
 }
 
@@ -477,22 +505,25 @@ class DecodersFactory {
 }
 
 class AvifEncoder {
+    constructor() {
+        this.worker = null;
+    }
     getImageData(blob, targetMimeType) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                const worker = new Worker(new URL('./simple.worker.js?worker', import.meta.url), {
+                this.worker = new Worker(new URL('./simple.worker.js?worker', import.meta.url), {
                     type: 'module'
                 });
-                worker.onmessage = (event) => {
+                this.worker.onmessage = (event) => {
                     if (!event.data.success) {
                         reject(new Error(event.data.error));
                     }
                     resolve(event.data.imageData);
                 };
-                worker.onerror = (error) => {
+                this.worker.onerror = (error) => {
                     reject(error);
                 };
-                worker.postMessage({
+                this.worker.postMessage({
                     blob,
                     targetMimeType,
                     command: 'blob-to-image-data'
@@ -509,47 +540,59 @@ class AvifEncoder {
             };
         });
     }
+    getWorker() {
+        return this.worker;
+    }
 }
 
 class SimpleEncoder {
+    constructor() {
+        this.worker = null;
+    }
     encode(blob, targetMimeType) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                const worker = new Worker(new URL('./simple.worker.js?worker', import.meta.url), {
+                this.worker = new Worker(new URL('./simple.worker.js?worker', import.meta.url), {
                     type: 'module'
                 });
-                worker.onmessage = (event) => {
+                this.worker.onmessage = (event) => {
                     if (!event.data.success) {
                         reject(new Error(event.data.error));
                     }
                     resolve(event.data);
                 };
-                worker.onerror = (error) => {
+                this.worker.onerror = (error) => {
                     reject(error);
                 };
-                worker.postMessage({ blob, targetMimeType, command: 'encode' });
+                this.worker.postMessage({ blob, targetMimeType, command: 'encode' });
             });
         });
+    }
+    getWorker() {
+        return this.worker;
     }
 }
 
 class WebpEncoder {
+    constructor() {
+        this.worker = null;
+    }
     getImageData(blob, targetMimeType) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                const worker = new Worker(new URL('./simple.worker.js?worker', import.meta.url), {
+                this.worker = new Worker(new URL('./simple.worker.js?worker', import.meta.url), {
                     type: 'module'
                 });
-                worker.onmessage = (event) => {
+                this.worker.onmessage = (event) => {
                     if (!event.data.success) {
                         reject(new Error(event.data.error));
                     }
                     resolve(event.data.imageData);
                 };
-                worker.onerror = (error) => {
+                this.worker.onerror = (error) => {
                     reject(error);
                 };
-                worker.postMessage({
+                this.worker.postMessage({
                     blob,
                     targetMimeType,
                     command: 'blob-to-image-data'
@@ -566,6 +609,9 @@ class WebpEncoder {
             };
         });
     }
+    getWorker() {
+        return this.worker;
+    }
 }
 
 class EncodersFactory {
@@ -581,6 +627,13 @@ class EncodersFactory {
     }
 }
 
+var PictureOperatorStatus;
+(function (PictureOperatorStatus) {
+    PictureOperatorStatus["idle"] = "idle";
+    PictureOperatorStatus["decoding"] = "decoding";
+    PictureOperatorStatus["compressing"] = "compressing";
+    PictureOperatorStatus["encoding"] = "encoding";
+})(PictureOperatorStatus || (PictureOperatorStatus = {}));
 class PictureOperator {
     constructor() {
         this.supportedEncodeFormats = [
@@ -599,6 +652,9 @@ class PictureOperator {
             PictureFormat.gif,
             PictureFormat.avif
         ];
+        this.status = PictureOperatorStatus.idle;
+        this.activeWorkers = [];
+        this.getStatus = () => this.status;
     }
     determineMimeType(file) {
         return file.type;
@@ -647,6 +703,17 @@ class PictureOperator {
                 return 'image/jpeg';
         }
     }
+    terminate() {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (const worker of this.activeWorkers) {
+                if (worker && worker.terminate) {
+                    worker.terminate();
+                }
+            }
+            this.activeWorkers = [];
+            this.status = PictureOperatorStatus.idle;
+        });
+    }
     process(file, config) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c, _d, _e;
@@ -665,8 +732,11 @@ class PictureOperator {
                 !this.supportedDecodeFormats.includes(sourceFormat)) {
                 throw new Error('Decoding of this format is not supported yet');
             }
+            this.terminate();
+            this.status = PictureOperatorStatus.decoding;
             const decoder = yield DecodersFactory.createDecoder(sourceFormat);
             const decodedPicture = yield decoder.decode(file);
+            this.activeWorkers.push(decoder.getWorker());
             const targetWidth = ((_a = config.resize) === null || _a === void 0 ? void 0 : _a[0])
                 ? Math.min((_b = config.resize) === null || _b === void 0 ? void 0 : _b[0], 4096)
                 : decodedPicture.width;
@@ -674,6 +744,7 @@ class PictureOperator {
                 ? Math.min((_d = config.resize) === null || _d === void 0 ? void 0 : _d[1], 4096)
                 : decodedPicture.height;
             const targetFormat = config.format;
+            this.status = PictureOperatorStatus.compressing;
             const pictureCompressor = new PictureCompressor();
             const compressedPicture = yield pictureCompressor.compress({
                 blob: decodedPicture.blob,
@@ -681,9 +752,13 @@ class PictureOperator {
                 targetWidth,
                 targetHeight
             });
+            this.activeWorkers.push(pictureCompressor.getWorker());
+            this.status = PictureOperatorStatus.encoding;
             const encoder = EncodersFactory.createEncoder(targetFormat);
             const targetMimeType = this.formatToMimeType(targetFormat);
             const encodedPicture = yield encoder.encode(compressedPicture.blob, targetMimeType);
+            this.activeWorkers.push(encoder.getWorker());
+            this.status = PictureOperatorStatus.idle;
             return encodedPicture.blob;
         });
     }
@@ -803,4 +878,4 @@ var webp_enc = /*#__PURE__*/Object.freeze({
     default: Module
 });
 
-export { PictureFormat, PictureOperator };
+export { PictureFormat, PictureOperator, PictureOperatorStatus };

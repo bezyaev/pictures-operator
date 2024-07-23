@@ -1,4 +1,5 @@
 export declare class PictureCompressor {
+    private worker;
     compress: ({ blob, quality, targetWidth, targetHeight }: {
         blob: Blob;
         quality: number;
@@ -8,4 +9,5 @@ export declare class PictureCompressor {
         blob: Blob;
         format: string;
     }>;
+    getWorker: () => Worker;
 }

@@ -8,6 +8,7 @@ export type EncodedPicture = {
 
 export interface PictureEncoder {
   encode(blob: Blob, targetMimeType: string): Promise<EncodedPicture>;
+  getWorker(): Worker;
 }
 
 export class EncodersFactory {

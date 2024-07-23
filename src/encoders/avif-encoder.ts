@@ -2,16 +2,18 @@ import { EncodedPicture, PictureEncoder } from '.';
 import { encode } from '@jsquash/avif';
 
 export class AvifEncoder implements PictureEncoder {
+  private worker: Worker | null = null;
+
   async getImageData(blob: Blob, targetMimeType: string): Promise<ImageData> {
     return new Promise((resolve, reject) => {
-      const worker = new Worker(
+      this.worker = new Worker(
         new URL('./simple.worker.js?worker', import.meta.url),
         {
           type: 'module'
         }
       );
 
-      worker.onmessage = (event) => {
+      this.worker.onmessage = (event) => {
         if (!event.data.success) {
           reject(new Error(event.data.error));
         }
@@ -19,11 +21,11 @@ export class AvifEncoder implements PictureEncoder {
         resolve(event.data.imageData);
       };
 
-      worker.onerror = (error) => {
+      this.worker.onerror = (error) => {
         reject(error);
       };
 
-      worker.postMessage({
+      this.worker.postMessage({
         blob,
         targetMimeType,
         command: 'blob-to-image-data'
@@ -38,5 +40,9 @@ export class AvifEncoder implements PictureEncoder {
     return {
       blob: new Blob([avifBuffer], { type: 'image/avif' })
     };
+  }
+
+  getWorker() {
+    return this.worker as Worker;
   }
 }

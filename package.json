@@ -1,6 +1,6 @@
 {
   "name": "pictures-operator",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Module to encode, decode, and compress images in various formats directly in the browser using Web workers",
   "type": "module",
   "module": "dist/index.esm.js",

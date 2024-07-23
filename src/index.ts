@@ -9,6 +9,13 @@ export type PictureOperatorConfig = {
   resize?: [number, number];
 };
 
+export enum PictureOperatorStatus {
+  idle = 'idle',
+  decoding = 'decoding',
+  compressing = 'compressing',
+  encoding = 'encoding'
+}
+
 export class PictureOperator {
   private determineMimeType(file: File): string {
     return file.type;
@@ -78,6 +85,23 @@ export class PictureOperator {
     PictureFormat.avif
   ];
 
+  private status: PictureOperatorStatus = PictureOperatorStatus.idle;
+  private activeWorkers: Worker[] = [];
+
+  async terminate() {
+    for (const worker of this.activeWorkers) {
+      if (worker && worker.terminate) {
+        worker.terminate();
+      }
+    }
+
+    this.activeWorkers = [];
+
+    this.status = PictureOperatorStatus.idle;
+  }
+
+  getStatus = () => this.status;
+
   async process(file: File, config: PictureOperatorConfig): Promise<Blob> {
     if (!window.Worker) {
       throw new Error('Web Workers are not supported in this environment');
@@ -101,8 +125,13 @@ export class PictureOperator {
       throw new Error('Decoding of this format is not supported yet');
     }
 
+    this.terminate();
+
+    this.status = PictureOperatorStatus.decoding;
+
     const decoder = await DecodersFactory.createDecoder(sourceFormat);
     const decodedPicture = await decoder.decode(file);
+    this.activeWorkers.push(decoder.getWorker());
 
     const targetWidth = config.resize?.[0]
       ? Math.min(config.resize?.[0], 4096)
@@ -113,6 +142,7 @@ export class PictureOperator {
 
     const targetFormat = config.format;
 
+    this.status = PictureOperatorStatus.compressing;
     const pictureCompressor = new PictureCompressor();
     const compressedPicture = await pictureCompressor.compress({
       blob: decodedPicture.blob,
@@ -120,7 +150,9 @@ export class PictureOperator {
       targetWidth,
       targetHeight
     });
+    this.activeWorkers.push(pictureCompressor.getWorker());
 
+    this.status = PictureOperatorStatus.encoding;
     const encoder = EncodersFactory.createEncoder(targetFormat);
     const targetMimeType = this.formatToMimeType(targetFormat);
 
@@ -128,7 +160,9 @@ export class PictureOperator {
       compressedPicture.blob,
       targetMimeType
     );
+    this.activeWorkers.push(encoder.getWorker());
 
+    this.status = PictureOperatorStatus.idle;
     return encodedPicture.blob;
   }
 
