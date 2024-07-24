@@ -8,7 +8,8 @@ export declare enum PictureOperatorStatus {
     idle = "idle",
     decoding = "decoding",
     compressing = "compressing",
-    encoding = "encoding"
+    encoding = "encoding",
+    terminated = "terminated"
 }
 export declare class PictureOperator {
     private determineMimeType;
@@ -18,6 +19,7 @@ export declare class PictureOperator {
     private supportedDecodeFormats;
     private status;
     private activeWorkers;
+    private checkTerminated;
     terminate(): Promise<void>;
     getStatus: () => PictureOperatorStatus;
     process(file: File, config: PictureOperatorConfig): Promise<Blob>;

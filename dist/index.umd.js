@@ -638,6 +638,7 @@
         PictureOperatorStatus["decoding"] = "decoding";
         PictureOperatorStatus["compressing"] = "compressing";
         PictureOperatorStatus["encoding"] = "encoding";
+        PictureOperatorStatus["terminated"] = "terminated";
     })(exports.PictureOperatorStatus || (exports.PictureOperatorStatus = {}));
     class PictureOperator {
         constructor() {
@@ -708,6 +709,12 @@
                     return 'image/jpeg';
             }
         }
+        checkTerminated() {
+            if (this.status === exports.PictureOperatorStatus.terminated) {
+                this.status = exports.PictureOperatorStatus.idle;
+                throw new Error('Picture Operator is terminated');
+            }
+        }
         terminate() {
             return tslib.__awaiter(this, void 0, void 0, function* () {
                 for (const worker of this.activeWorkers) {
@@ -716,7 +723,7 @@
                     }
                 }
                 this.activeWorkers = [];
-                this.status = exports.PictureOperatorStatus.idle;
+                this.status = exports.PictureOperatorStatus.terminated;
             });
         }
         process(file, config) {
@@ -739,6 +746,7 @@
                 }
                 this.terminate();
                 this.status = exports.PictureOperatorStatus.decoding;
+                this.checkTerminated();
                 const decoder = yield DecodersFactory.createDecoder(sourceFormat);
                 const decodedPicture = yield decoder.decode(file);
                 this.activeWorkers.push(decoder.getWorker());
@@ -750,6 +758,7 @@
                     : decodedPicture.height;
                 const targetFormat = config.format;
                 this.status = exports.PictureOperatorStatus.compressing;
+                this.checkTerminated();
                 const pictureCompressor = new PictureCompressor();
                 const compressedPicture = yield pictureCompressor.compress({
                     blob: decodedPicture.blob,
@@ -761,6 +770,7 @@
                 this.status = exports.PictureOperatorStatus.encoding;
                 const encoder = EncodersFactory.createEncoder(targetFormat);
                 const targetMimeType = this.formatToMimeType(targetFormat);
+                this.checkTerminated();
                 const encodedPicture = yield encoder.encode(compressedPicture.blob, targetMimeType);
                 this.activeWorkers.push(encoder.getWorker());
                 this.status = exports.PictureOperatorStatus.idle;

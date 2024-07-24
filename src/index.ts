@@ -13,7 +13,8 @@ export enum PictureOperatorStatus {
   idle = 'idle',
   decoding = 'decoding',
   compressing = 'compressing',
-  encoding = 'encoding'
+  encoding = 'encoding',
+  terminated = 'terminated'
 }
 
 export class PictureOperator {
@@ -88,6 +89,13 @@ export class PictureOperator {
   private status: PictureOperatorStatus = PictureOperatorStatus.idle;
   private activeWorkers: Worker[] = [];
 
+  private checkTerminated() {
+    if (this.status === PictureOperatorStatus.terminated) {
+      this.status = PictureOperatorStatus.idle;
+      throw new Error('Picture Operator is terminated');
+    }
+  }
+
   async terminate() {
     for (const worker of this.activeWorkers) {
       if (worker && worker.terminate) {
@@ -96,8 +104,7 @@ export class PictureOperator {
     }
 
     this.activeWorkers = [];
-
-    this.status = PictureOperatorStatus.idle;
+    this.status = PictureOperatorStatus.terminated;
   }
 
   getStatus = () => this.status;
@@ -129,6 +136,7 @@ export class PictureOperator {
 
     this.status = PictureOperatorStatus.decoding;
 
+    this.checkTerminated();
     const decoder = await DecodersFactory.createDecoder(sourceFormat);
     const decodedPicture = await decoder.decode(file);
     this.activeWorkers.push(decoder.getWorker());
@@ -143,6 +151,7 @@ export class PictureOperator {
     const targetFormat = config.format;
 
     this.status = PictureOperatorStatus.compressing;
+    this.checkTerminated();
     const pictureCompressor = new PictureCompressor();
     const compressedPicture = await pictureCompressor.compress({
       blob: decodedPicture.blob,
@@ -156,6 +165,7 @@ export class PictureOperator {
     const encoder = EncodersFactory.createEncoder(targetFormat);
     const targetMimeType = this.formatToMimeType(targetFormat);
 
+    this.checkTerminated();
     const encodedPicture = await encoder.encode(
       compressedPicture.blob,
       targetMimeType

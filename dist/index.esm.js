@@ -633,6 +633,7 @@ var PictureOperatorStatus;
     PictureOperatorStatus["decoding"] = "decoding";
     PictureOperatorStatus["compressing"] = "compressing";
     PictureOperatorStatus["encoding"] = "encoding";
+    PictureOperatorStatus["terminated"] = "terminated";
 })(PictureOperatorStatus || (PictureOperatorStatus = {}));
 class PictureOperator {
     constructor() {
@@ -703,6 +704,12 @@ class PictureOperator {
                 return 'image/jpeg';
         }
     }
+    checkTerminated() {
+        if (this.status === PictureOperatorStatus.terminated) {
+            this.status = PictureOperatorStatus.idle;
+            throw new Error('Picture Operator is terminated');
+        }
+    }
     terminate() {
         return __awaiter(this, void 0, void 0, function* () {
             for (const worker of this.activeWorkers) {
@@ -711,7 +718,7 @@ class PictureOperator {
                 }
             }
             this.activeWorkers = [];
-            this.status = PictureOperatorStatus.idle;
+            this.status = PictureOperatorStatus.terminated;
         });
     }
     process(file, config) {
@@ -734,6 +741,7 @@ class PictureOperator {
             }
             this.terminate();
             this.status = PictureOperatorStatus.decoding;
+            this.checkTerminated();
             const decoder = yield DecodersFactory.createDecoder(sourceFormat);
             const decodedPicture = yield decoder.decode(file);
             this.activeWorkers.push(decoder.getWorker());
@@ -745,6 +753,7 @@ class PictureOperator {
                 : decodedPicture.height;
             const targetFormat = config.format;
             this.status = PictureOperatorStatus.compressing;
+            this.checkTerminated();
             const pictureCompressor = new PictureCompressor();
             const compressedPicture = yield pictureCompressor.compress({
                 blob: decodedPicture.blob,
@@ -756,6 +765,7 @@ class PictureOperator {
             this.status = PictureOperatorStatus.encoding;
             const encoder = EncodersFactory.createEncoder(targetFormat);
             const targetMimeType = this.formatToMimeType(targetFormat);
+            this.checkTerminated();
             const encodedPicture = yield encoder.encode(compressedPicture.blob, targetMimeType);
             this.activeWorkers.push(encoder.getWorker());
             this.status = PictureOperatorStatus.idle;
