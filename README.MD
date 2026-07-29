@@ -70,3 +70,9 @@ Version 2 is a breaking, ESM-only release:
 - The published package is self-contained and has no runtime npm dependencies.
 
 Application imports using standard ESM syntax remain unchanged.
+
+## Licensing
+
+Pictures Operator's original code is available under the MIT License. The self-contained browser distribution also includes third-party codec components under Apache-2.0, BSD, and LGPL-3.0 licenses.
+
+See [`LICENSE`](LICENSE) and [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for the applicable terms, exact versions, notices, and corresponding-source locations. The LGPL-licensed HEIF implementation is shipped as a separate, replaceable `libheif-bundle.mjs` runtime asset.

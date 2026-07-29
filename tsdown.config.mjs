@@ -16,8 +16,8 @@ export default defineConfig({
   hash: false,
   fixedExtension: false,
   deps: {
-    alwaysBundle: [/^@jsquash\//, /^libheif-js(?:\/|$)/],
-    onlyBundle: [/^@jsquash\//, /^libheif-js(?:\/|$)/, /^wasm-feature-detect$/]
+    alwaysBundle: [/^@jsquash\//],
+    onlyBundle: [/^@jsquash\//, /^wasm-feature-detect$/]
   },
   copy: [
     {
@@ -27,6 +27,10 @@ export default defineConfig({
         'node_modules/@jsquash/avif/codec/enc/*.{js,wasm}',
         'node_modules/@jsquash/avif/codec/dec/*.{js,wasm}'
       ],
+      flatten: true
+    },
+    {
+      from: 'node_modules/libheif-js/libheif-wasm/libheif-bundle.mjs',
       flatten: true
     }
   ],

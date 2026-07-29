@@ -7,10 +7,19 @@
     "encode",
     "picture"
   ],
-  "license": "MIT",
+  "homepage": "https://github.com/bezyaev/pictures-operator#readme",
+  "bugs": "https://github.com/bezyaev/pictures-operator/issues",
+  "license": "MIT AND Apache-2.0 AND BSD-2-Clause AND BSD-3-Clause AND LGPL-3.0-only",
   "author": "Mark Beziaev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bezyaev/pictures-operator.git"
+  },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "licenses"
   ],
   "type": "module",
   "types": "./dist/index.d.ts",
