@@ -1,59 +1,54 @@
 {
   "name": "pictures-operator",
-  "version": "1.0.14",
+  "version": "2.0.0",
   "description": "Module to encode, decode, and compress images in various formats directly in the browser using Web workers",
-  "type": "module",
-  "module": "dist/index.esm.js",
-  "main": "dist/index.umd.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.esm.js",
-      "require": "./dist/index.umd.js"
-    }
-  },
+  "keywords": [
+    "decode",
+    "encode",
+    "picture"
+  ],
+  "license": "MIT",
+  "author": "Mark Beziaev",
   "files": [
     "dist"
   ],
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "clean": "rimraf ./dist",
-    "build": "npm run clean && rollup -c",
-    "lint": "eslint 'src/**/*.ts'",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm run clean && npm run build"
+    "build": "tsdown --config tsdown.config.mjs",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "lint": "oxlint --deny-warnings src test playwright.config.mjs tsdown.config.mjs",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run package:check && npm run test:packed",
+    "test": "npm run build && npm run test:unit && npm run test:browser",
+    "test:unit": "node --test test/unit/*.test.mjs",
+    "test:browser": "playwright test",
+    "test:browser:install": "playwright install chromium",
+    "test:packed": "node test/packed-consumer/run.mjs",
+    "package:check": "publint && attw --pack ."
   },
-  "keywords": [
-    "encode",
-    "decode",
-    "picture"
-  ],
-  "author": "Mark Beziaev",
-  "license": "MIT",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^26.0.1",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^11.1.6",
-    "@rollup/plugin-url": "^8.0.2",
-    "@types/node": "^20.14.10",
-    "@typescript-eslint/eslint-plugin": "^7.15.0",
-    "@typescript-eslint/parser": "^7.15.0",
-    "@web/rollup-plugin-import-meta-assets": "^2.2.1",
-    "eslint": "^8.57.0",
-    "fs-extra": "^11.2.0",
-    "rimraf": "^5.0.8",
-    "rollup": "^4.18.1",
-    "rollup-plugin-polyfill-node": "^0.13.0",
-    "ts-loader": "^9.5.1",
-    "ts-node": "^10.9.2",
-    "tslib": "^2.6.3",
-    "typescript": "^5.5.3"
-  },
-  "dependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
     "@jsquash/avif": "^1.3.0",
     "@jsquash/webp": "^1.4.0",
+    "@playwright/test": "1.62.0",
+    "@types/node": "24.13.3",
     "libheif-js": "^1.17.1",
-    "tslib": "^2.6.3"
-  }
+    "oxfmt": "0.61.0",
+    "oxlint": "1.76.0",
+    "publint": "0.3.22",
+    "tsdown": "0.22.14",
+    "typescript": "7.0.2"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "npm@11.19.0"
 }

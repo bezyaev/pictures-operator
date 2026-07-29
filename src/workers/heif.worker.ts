@@ -1,4 +1,4 @@
-import { HeifDecoder } from 'libheif-js';
+import { HeifDecoder } from 'libheif-js/wasm-bundle.js';
 
 // check if the worker is running in a web worker
 if (typeof self !== 'undefined' && typeof window === 'undefined') {
@@ -70,15 +70,13 @@ function main() {
     } = event;
 
     try {
-      return command === 'decode' ? decode(event) : null;
+      if (command === 'decode') {
+        await decode(event);
+      }
     } catch (e) {
       self.postMessage({
         success: false,
-        error: (
-          e as {
-            message: string;
-          }
-        ).message
+        error: e instanceof Error ? e.message : String(e)
       });
     }
   };

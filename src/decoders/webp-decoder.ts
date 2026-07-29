@@ -7,12 +7,9 @@ export class WebpDecoder implements PictureDecoder {
 
   async getBlob(imageData: ImageData): Promise<Blob> {
     return new Promise((resolve, reject) => {
-      this.worker = new Worker(
-        new URL('./simple.worker.js?worker', import.meta.url),
-        {
-          type: 'module'
-        }
-      );
+      this.worker = new Worker(new URL('./simple.worker.js?worker', import.meta.url), {
+        type: 'module'
+      });
 
       this.worker.onmessage = (event) => {
         if (!event.data.success) {
