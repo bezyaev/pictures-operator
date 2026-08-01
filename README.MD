@@ -4,19 +4,29 @@
 
 PicturesOperator decodes, resizes, compresses, and encodes images directly in the browser using module Web Workers, OffscreenCanvas, and WASM codecs.
 
+It is useful for upload forms, image editors, and other browser tools that need to resize, compress, or convert images before uploading them. Processing happens entirely on the client in Web Workers, reducing unnecessary backend load and keeping heavy work off the main thread.
+
+![PicturesOperator demo](./docs/demo.gif)
+
 The package is ESM-only and requires a browser with Web Worker and OffscreenCanvas support.
+
+## Installation
+
+```bash
+npm install pictures-operator
+```
 
 ## Usage
 
 ```typescript
-import { PictureFormat, PicturesOperator } from 'pictures-operator';
+import { PictureFormat, PicturesOperator } from "pictures-operator";
 
 const pictureOperator = new PicturesOperator();
 
 const result = await pictureOperator.process(file, {
   format: PictureFormat.webp,
   quality: 90,
-  resize: [720, 480]
+  resize: [720, 480],
 });
 
 // result is a Blob
