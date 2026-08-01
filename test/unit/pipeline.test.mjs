@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, test } from 'node:test';
 
-import { PictureFormat, PictureOperator, PictureOperatorStatus } from './distribution.mjs';
+import { PictureFormat, PicturesOperator, PictureOperatorStatus } from './distribution.mjs';
 
 const originalGlobals = {
   Image: globalThis.Image,
@@ -77,7 +77,7 @@ test('runs the decode, resize, compress, and encode pipeline', async () => {
     OffscreenCanvas: class {}
   };
 
-  const operator = new PictureOperator();
+  const operator = new PicturesOperator();
   const output = await operator.process(new Blob(['input'], { type: 'image/png' }), {
     format: PictureFormat.png,
     quality: 80,

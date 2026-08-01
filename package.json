@@ -1,11 +1,23 @@
 {
   "name": "pictures-operator",
   "version": "2.0.0",
-  "description": "Module to encode, decode, and compress images in various formats directly in the browser using Web workers",
+  "description": "Browser image conversion, resizing, and compression with Web Workers and WASM codecs",
   "keywords": [
-    "decode",
-    "encode",
-    "picture"
+    "avif",
+    "browser",
+    "heic",
+    "heif",
+    "image",
+    "image-compression",
+    "image-conversion",
+    "image-decoder",
+    "image-encoder",
+    "image-processing",
+    "resize",
+    "wasm",
+    "web-worker",
+    "webassembly",
+    "webp"
   ],
   "homepage": "https://github.com/bezyaev/pictures-operator#readme",
   "bugs": "https://github.com/bezyaev/pictures-operator/issues",

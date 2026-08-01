@@ -24,14 +24,14 @@ export async function processFixture(
 ) {
   return page.evaluate(
     async ({ inputFormat, inputMimeType, outputFormat, forceFallback, quality, resize }) => {
-      const { PictureFormat, PictureOperator } = await import('/dist/index.js');
+      const { PictureFormat, PicturesOperator } = await import('/dist/index.js');
       const response = await fetch(`/test/fixtures/input.${inputFormat}`);
       if (!response.ok) throw new Error(`Fixture request failed: ${response.status}`);
 
       const input = new File([await response.blob()], `input.${inputFormat}`, {
         type: inputMimeType
       });
-      const operator = new PictureOperator();
+      const operator = new PicturesOperator();
       const NativeImage = window.Image;
 
       if (forceFallback) {

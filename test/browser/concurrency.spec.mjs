@@ -6,10 +6,10 @@ test.beforeEach(async ({ page }) => {
 
 test('independent operators process images concurrently', async ({ page }) => {
   const results = await page.evaluate(async () => {
-    const { PictureFormat, PictureOperator } = await import('/dist/index.js');
+    const { PictureFormat, PicturesOperator } = await import('/dist/index.js');
     const response = await fetch('/test/fixtures/input.png');
     const source = await response.blob();
-    const operators = [new PictureOperator(), new PictureOperator()];
+    const operators = [new PicturesOperator(), new PicturesOperator()];
 
     try {
       const outputs = await Promise.all([

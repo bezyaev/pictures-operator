@@ -1,6 +1,6 @@
 import {
   PictureFormat,
-  PictureOperator,
+  PicturesOperator,
   PictureOperatorStatus,
   type PictureOperatorConfig
 } from 'pictures-operator';
@@ -10,7 +10,7 @@ const config: PictureOperatorConfig = {
   quality: 80,
   resize: [8, 6]
 };
-const operator = new PictureOperator();
+const operator = new PicturesOperator();
 const status: PictureOperatorStatus = operator.getStatus();
 
 void config;

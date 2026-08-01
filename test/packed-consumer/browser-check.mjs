@@ -62,10 +62,10 @@ page.on('request', (request) => requestedAssets.push(new URL(request.url()).path
 try {
   await page.goto(`http://127.0.0.1:${address.port}/`);
   const result = await page.evaluate(async () => {
-    const { PictureFormat, PictureOperator } = await import('pictures-operator');
+    const { PictureFormat, PicturesOperator } = await import('pictures-operator');
     const response = await fetch('/input.png');
     const input = new File([await response.blob()], 'input.png', { type: 'image/png' });
-    const operator = new PictureOperator();
+    const operator = new PicturesOperator();
 
     try {
       const output = await operator.process(input, {

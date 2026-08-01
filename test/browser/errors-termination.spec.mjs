@@ -3,8 +3,8 @@ import { expect, test } from '@playwright/test';
 async function processInvalidImage(page, type, bytes) {
   return page.evaluate(
     async ({ type, bytes }) => {
-      const { PictureFormat, PictureOperator } = await import('/dist/index.js');
-      const operator = new PictureOperator();
+      const { PictureFormat, PicturesOperator } = await import('/dist/index.js');
+      const operator = new PicturesOperator();
 
       try {
         await operator.process(new File([new Uint8Array(bytes)], 'invalid', { type }), {
@@ -47,7 +47,7 @@ test('rejects truncated JPEG input reported by a worker', async ({ page }) => {
 
 test('terminate stops and rejects an active worker operation', async ({ page }) => {
   const result = await page.evaluate(async () => {
-    const { PictureFormat, PictureOperator } = await import('/dist/index.js');
+    const { PictureFormat, PicturesOperator } = await import('/dist/index.js');
     const response = await fetch('/test/fixtures/input.png');
     const file = new File([await response.blob()], 'input.png', { type: 'image/png' });
     const NativeWorker = window.Worker;
@@ -64,7 +64,7 @@ test('terminate stops and rejects an active worker operation', async ({ page }) 
       }
     };
 
-    const operator = new PictureOperator();
+    const operator = new PicturesOperator();
 
     try {
       const processing = operator.process(file, { format: PictureFormat.avif });

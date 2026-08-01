@@ -1,17 +1,17 @@
-# PictureOperator
+# PicturesOperator
 
 ## Overview
 
-PictureOperator decodes, resizes, compresses, and encodes images directly in the browser using module Web Workers, OffscreenCanvas, and WASM codecs.
+PicturesOperator decodes, resizes, compresses, and encodes images directly in the browser using module Web Workers, OffscreenCanvas, and WASM codecs.
 
 The package is ESM-only and requires a browser with Web Worker and OffscreenCanvas support.
 
 ## Usage
 
 ```typescript
-import { PictureFormat, PictureOperator } from 'pictures-operator';
+import { PictureFormat, PicturesOperator } from 'pictures-operator';
 
-const pictureOperator = new PictureOperator();
+const pictureOperator = new PicturesOperator();
 
 const result = await pictureOperator.process(file, {
   format: PictureFormat.webp,
@@ -34,7 +34,7 @@ Files must use one of the documented MIME types. Unknown or empty MIME types are
 
 ## Browser requirements
 
-PictureOperator requires all of the following browser features:
+PicturesOperator requires all of the following browser features:
 
 - ECMAScript modules and module workers
 - Web Workers

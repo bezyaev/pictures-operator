@@ -63,7 +63,7 @@ try {
     [
       '--input-type=module',
       '--eval',
-      "import { PictureFormat, PictureOperator } from 'pictures-operator'; if (!PictureFormat || !PictureOperator) process.exit(1)"
+      "import { PictureFormat, PicturesOperator } from 'pictures-operator'; if (!PictureFormat || !PicturesOperator) process.exit(1)"
     ],
     { cwd: consumerDirectory }
   );

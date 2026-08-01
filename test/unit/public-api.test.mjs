@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { PictureFormat, PictureOperator, PictureOperatorStatus } from './distribution.mjs';
+import { PictureFormat, PicturesOperator, PictureOperatorStatus } from './distribution.mjs';
 
 test('exports the documented formats and starts idle', () => {
-  const operator = new PictureOperator();
+  const operator = new PicturesOperator();
 
   assert.equal(operator.getStatus(), PictureOperatorStatus.idle);
   assert.equal(PictureFormat.jpeg, 'jpeg');

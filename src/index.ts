@@ -17,7 +17,7 @@ export enum PictureOperatorStatus {
   terminated = 'terminated'
 }
 
-export class PictureOperator {
+export class PicturesOperator {
   private determineMimeType(file: File): string {
     return file.type;
   }

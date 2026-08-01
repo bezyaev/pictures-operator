@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, test } from 'node:test';
 
-import { PictureFormat, PictureOperator } from './distribution.mjs';
+import { PictureFormat, PicturesOperator } from './distribution.mjs';
 
 const originalWindow = globalThis.window;
 
@@ -15,7 +15,7 @@ afterEach(() => {
 });
 
 test('reports missing browser capabilities clearly', async () => {
-  const operator = new PictureOperator();
+  const operator = new PicturesOperator();
   const input = new Blob([], { type: 'image/png' });
 
   await assert.rejects(
@@ -34,7 +34,7 @@ test('rejects unsupported output and non-image input before starting workers', a
   globalThis.window.Worker = class {};
   globalThis.window.OffscreenCanvas = class {};
 
-  const operator = new PictureOperator();
+  const operator = new PicturesOperator();
 
   await assert.rejects(
     operator.process(new Blob([], { type: 'image/png' }), {
