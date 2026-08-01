@@ -1,4 +1,27 @@
-import { HeifDecoder } from 'libheif-js';
+type HeifImage = {
+  display: (imageData: ImageData, callback: (data: ImageData | null) => void) => void;
+  get_height: () => number;
+  get_width: () => number;
+};
+
+type Libheif = {
+  HeifDecoder: new () => {
+    decode: (data: ArrayBuffer) => HeifImage[];
+  };
+};
+
+type LibheifModule = {
+  default: () => Libheif | Promise<Libheif>;
+};
+
+let libheifPromise: Promise<Libheif> | null = null;
+
+function loadLibheif(): Promise<Libheif> {
+  libheifPromise ??= import(new URL('./libheif-bundle.mjs', import.meta.url).href).then(
+    async (module) => (module as LibheifModule).default()
+  );
+  return libheifPromise;
+}
 
 // check if the worker is running in a web worker
 if (typeof self !== 'undefined' && typeof window === 'undefined') {
@@ -21,10 +44,11 @@ async function decode(event: {
     throw new Error('Could not get 2d context');
   }
 
+  const { HeifDecoder } = await loadLibheif();
   const decoder = new HeifDecoder();
   const fileBuffer = await file.arrayBuffer();
 
-  const data = await decoder.decode(fileBuffer);
+  const data = decoder.decode(fileBuffer);
 
   const image = data[0];
   const width = image.get_width();
@@ -70,15 +94,13 @@ function main() {
     } = event;
 
     try {
-      return command === 'decode' ? decode(event) : null;
+      if (command === 'decode') {
+        await decode(event);
+      }
     } catch (e) {
       self.postMessage({
         success: false,
-        error: (
-          e as {
-            message: string;
-          }
-        ).message
+        error: e instanceof Error ? e.message : String(e)
       });
     }
   };

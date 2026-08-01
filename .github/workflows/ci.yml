@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install with lifecycle scripts disabled
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Check formatting
+        run: node node_modules/oxfmt/bin/oxfmt --check .
+
+      - name: Lint
+        run: node node_modules/oxlint/bin/oxlint --deny-warnings src test playwright.config.mjs tsdown.config.mjs
+
+      - name: Typecheck
+        run: node node_modules/typescript/bin/tsc --noEmit
+
+      - name: Build
+        run: node node_modules/tsdown/dist/run.mjs --config tsdown.config.mjs
+
+      - name: Run unit tests
+        run: node --test test/unit/*.test.mjs
+
+      - name: Validate package metadata
+        run: |
+          node node_modules/publint/src/cli.js
+          node node_modules/@arethetypeswrong/cli/dist/index.js --pack . --profile esm-only --quiet
+
+      - name: Validate packed Node and TypeScript consumers
+        env:
+          PACKED_CONSUMER_SKIP_BROWSER: '1'
+        run: node test/packed-consumer/run.mjs
+
+      - name: Audit production dependencies
+        run: npm audit --package-lock-only --omit=dev --ignore-scripts
+
+      - name: Audit complete dependency tree
+        run: npm audit --package-lock-only --ignore-scripts

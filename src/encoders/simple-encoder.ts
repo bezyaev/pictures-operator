@@ -5,12 +5,9 @@ export class SimpleEncoder implements PictureEncoder {
 
   async encode(blob: Blob, targetMimeType: string): Promise<EncodedPicture> {
     return new Promise((resolve, reject) => {
-      this.worker = new Worker(
-        new URL('./simple.worker.js?worker', import.meta.url),
-        {
-          type: 'module'
-        }
-      );
+      this.worker = new Worker(new URL('./simple.worker.js?worker', import.meta.url), {
+        type: 'module'
+      });
 
       this.worker.onmessage = (event) => {
         if (!event.data.success) {

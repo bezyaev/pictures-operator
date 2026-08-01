@@ -47,12 +47,8 @@ export class DecodersFactory {
     });
   }
 
-  static async createDecoder(
-    sourceFormat: PictureFormat
-  ): Promise<PictureDecoder> {
-    const isFormatSupported = await DecodersFactory.isFormatSupported(
-      sourceFormat
-    );
+  static async createDecoder(sourceFormat: PictureFormat): Promise<PictureDecoder> {
+    const isFormatSupported = await DecodersFactory.isFormatSupported(sourceFormat);
 
     switch (sourceFormat) {
       case PictureFormat.avif:

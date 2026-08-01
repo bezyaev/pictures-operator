@@ -6,5 +6,5 @@ export enum PictureFormat {
   jpeg = 'jpeg',
   png = 'png',
   bmp = 'bmp',
-  avif = 'avif',
+  avif = 'avif'
 }

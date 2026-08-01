@@ -17,12 +17,12 @@ export enum PictureOperatorStatus {
   terminated = 'terminated'
 }
 
-export class PictureOperator {
+export class PicturesOperator {
   private determineMimeType(file: File): string {
     return file.type;
   }
 
-  private mimeTypeToFormat(mimeType: string): PictureFormat {
+  private mimeTypeToFormat(mimeType: string): PictureFormat | null {
     switch (mimeType) {
       case 'image/gif':
         return PictureFormat.gif;
@@ -41,7 +41,7 @@ export class PictureOperator {
       case 'image/avif':
         return PictureFormat.avif;
       default:
-        return PictureFormat.jpeg;
+        return null;
     }
   }
 
@@ -88,19 +88,16 @@ export class PictureOperator {
 
   private status: PictureOperatorStatus = PictureOperatorStatus.idle;
   private activeWorkers: Worker[] = [];
-
-  private checkTerminated() {
-    if (this.status === PictureOperatorStatus.terminated) {
-      this.status = PictureOperatorStatus.idle;
-      throw new Error('Picture Operator is terminated');
-    }
-  }
+  private currentOperation: symbol | null = null;
+  private rejectCurrentOperation: ((reason: Error) => void) | null = null;
 
   async terminate() {
+    this.currentOperation = null;
+    this.rejectCurrentOperation?.(new Error('Picture Operator is terminated'));
+    this.rejectCurrentOperation = null;
+
     for (const worker of this.activeWorkers) {
-      if (worker && worker.terminate) {
-        worker.terminate();
-      }
+      worker.terminate();
     }
 
     this.activeWorkers = [];
@@ -126,54 +123,76 @@ export class PictureOperator {
     const sourceFormat = this.mimeTypeToFormat(mimeType);
 
     if (
-      !file.type.startsWith('image') ||
+      !file.type.startsWith('image/') ||
+      sourceFormat === null ||
       !this.supportedDecodeFormats.includes(sourceFormat)
     ) {
       throw new Error('Decoding of this format is not supported yet');
     }
 
-    this.terminate();
+    await this.terminate();
 
-    this.status = PictureOperatorStatus.decoding;
-
-    this.checkTerminated();
-    const decoder = await DecodersFactory.createDecoder(sourceFormat);
-    const decodedPicture = await decoder.decode(file);
-    this.activeWorkers.push(decoder.getWorker());
-
-    const targetWidth = config.resize?.[0]
-      ? Math.min(config.resize?.[0], 4096)
-      : decodedPicture.width;
-    const targetHeight = config.resize?.[1]
-      ? Math.min(config.resize?.[1], 4096)
-      : decodedPicture.height;
-
-    const targetFormat = config.format;
-
-    this.status = PictureOperatorStatus.compressing;
-    this.checkTerminated();
-    const pictureCompressor = new PictureCompressor();
-    const compressedPicture = await pictureCompressor.compress({
-      blob: decodedPicture.blob,
-      quality: config.quality ?? 100,
-      targetWidth,
-      targetHeight
+    const operation = Symbol('picture-operation');
+    this.currentOperation = operation;
+    const cancellation = new Promise<never>((_resolve, reject) => {
+      this.rejectCurrentOperation = reject;
     });
-    this.activeWorkers.push(pictureCompressor.getWorker());
+    const waitFor = async <T>(promise: Promise<T>, worker?: Worker | null): Promise<T> => {
+      if (worker) {
+        this.activeWorkers.push(worker);
+      }
 
-    this.status = PictureOperatorStatus.encoding;
-    const encoder = EncodersFactory.createEncoder(targetFormat);
-    const targetMimeType = this.formatToMimeType(targetFormat);
+      return Promise.race([promise, cancellation]);
+    };
 
-    this.checkTerminated();
-    const encodedPicture = await encoder.encode(
-      compressedPicture.blob,
-      targetMimeType
-    );
-    this.activeWorkers.push(encoder.getWorker());
+    try {
+      this.status = PictureOperatorStatus.decoding;
+      const decoder = await waitFor(DecodersFactory.createDecoder(sourceFormat));
+      const decoding = decoder.decode(file);
+      const decodedPicture = await waitFor(decoding, decoder.getWorker());
 
-    this.status = PictureOperatorStatus.idle;
-    return encodedPicture.blob;
+      const targetWidth = config.resize?.[0]
+        ? Math.min(config.resize[0], 4096)
+        : decodedPicture.width;
+      const targetHeight = config.resize?.[1]
+        ? Math.min(config.resize[1], 4096)
+        : decodedPicture.height;
+
+      const targetFormat = config.format;
+
+      this.status = PictureOperatorStatus.compressing;
+      const pictureCompressor = new PictureCompressor();
+      const compression = pictureCompressor.compress({
+        blob: decodedPicture.blob,
+        quality: config.quality ?? 100,
+        targetWidth,
+        targetHeight
+      });
+      const compressedPicture = await waitFor(compression, pictureCompressor.getWorker());
+
+      this.status = PictureOperatorStatus.encoding;
+      const encoder = EncodersFactory.createEncoder(targetFormat);
+      const targetMimeType = this.formatToMimeType(targetFormat);
+      const encoding = encoder.encode(compressedPicture.blob, targetMimeType);
+      const encodedPicture = await waitFor(encoding, encoder.getWorker());
+
+      if (this.currentOperation !== operation) {
+        throw new Error('Picture Operator is terminated');
+      }
+
+      this.status = PictureOperatorStatus.idle;
+      return encodedPicture.blob;
+    } catch (error) {
+      if (this.currentOperation === operation) {
+        this.status = PictureOperatorStatus.idle;
+      }
+      throw error;
+    } finally {
+      if (this.currentOperation === operation) {
+        this.currentOperation = null;
+        this.rejectCurrentOperation = null;
+      }
+    }
   }
 
   private downloadFile(blob: Blob, fileName: string) {

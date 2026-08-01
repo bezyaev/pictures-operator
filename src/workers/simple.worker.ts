@@ -26,8 +26,7 @@ async function decode(event: {
   const { width, height } = bitmap;
 
   // Fallback for iOS, canvas size is limited to 4096x4096
-  const downscaleFactor =
-    width > 4096 || height > 4096 ? Math.min(4096 / width, 4096 / height) : 1;
+  const downscaleFactor = width > 4096 || height > 4096 ? Math.min(4096 / width, 4096 / height) : 1;
 
   const scaledWidth = width * downscaleFactor;
   const scaledHeight = height * downscaleFactor;
@@ -107,8 +106,7 @@ async function getImageData(event: {
   const { width, height } = bitmap;
 
   // Fallback for iOS, canvas size is limited to 4096x4096
-  const downscaleFactor =
-    width > 4096 || height > 4096 ? Math.min(4096 / width, 4096 / height) : 1;
+  const downscaleFactor = width > 4096 || height > 4096 ? Math.min(4096 / width, 4096 / height) : 1;
 
   const scaledWidth = width * downscaleFactor;
   const scaledHeight = height * downscaleFactor;
@@ -160,11 +158,7 @@ async function getBlob(event: {
 function main() {
   self.onmessage = async (event: {
     data: {
-      command:
-        | 'decode'
-        | 'encode'
-        | 'blob-to-image-data'
-        | 'image-data-to-blob';
+      command: 'decode' | 'encode' | 'blob-to-image-data' | 'image-data-to-blob';
       blob: Blob;
       targetMimeType: string;
       file: File;
@@ -178,13 +172,17 @@ function main() {
     try {
       switch (command) {
         case 'blob-to-image-data':
-          return getImageData(event);
+          await getImageData(event);
+          return;
         case 'image-data-to-blob':
-          return getBlob(event);
+          await getBlob(event);
+          return;
         case 'decode':
-          return decode(event);
+          await decode(event);
+          return;
         case 'encode':
-          return encode(event);
+          await encode(event);
+          return;
         default:
           throw new Error('Unknown command');
       }
